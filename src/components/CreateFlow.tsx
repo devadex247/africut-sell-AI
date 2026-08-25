@@ -17,9 +17,11 @@ import {
   Phone,
   AlertCircle,
   HelpCircle,
+  Bot,
 } from "lucide-react";
 import { SalesBrief } from "../types";
 import { KILLER_DEMO_BRIEF } from "../data/presets";
+import AiBotDialog from "./AiBotDialog";
 
 interface CreateFlowProps {
   onSubmit: (brief: SalesBrief) => void;
@@ -121,6 +123,8 @@ export default function CreateFlow({ onSubmit, onCancel }: CreateFlowProps) {
   const [category, setCategory] = useState<string>("Food & Bakery");
   const [productTitle, setProductTitle] = useState<string>("");
   const [mainBenefit, setMainBenefit] = useState<string>("");
+  const [showAiBotDialog, setShowAiBotDialog] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [salesGoal, setSalesGoal] = useState<string>("Get WhatsApp orders");
   const [platforms, setPlatforms] = useState<string[]>([
@@ -360,9 +364,19 @@ export default function CreateFlow({ onSubmit, onCancel }: CreateFlowProps) {
 
               {/* Main Benefit */}
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-[#1A1A1A] mb-1.5">
-                  Main Benefit / Special Detail / Selling Point
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-black uppercase tracking-wider text-[#1A1A1A]">
+                    Main Benefit / Special Detail / Selling Point
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAiBotDialog(true)}
+                    className="inline-flex items-center gap-1.5 bg-[#FF6B00] text-white hover:bg-[#e05e00] text-xs font-black px-3 py-1.5 rounded-xl border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] cursor-pointer transition-all"
+                  >
+                    <Bot className="w-3.5 h-3.5 animate-bounce" />
+                    <span>🤖 Ask Dala AI Bot</span>
+                  </button>
+                </div>
                 <textarea
                   rows={3}
                   value={mainBenefit}
@@ -371,7 +385,7 @@ export default function CreateFlow({ onSubmit, onCancel }: CreateFlowProps) {
                   className="w-full px-4 py-3 text-sm rounded-xl border-2 border-[#1A1A1A] bg-[#FFFBF7] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#FF6B00] transition-all font-medium placeholder:font-normal placeholder:text-gray-400 resize-none"
                 />
                 <p className="text-[11px] text-gray-500 mt-1 font-medium">
-                  What makes this special or why should customers choose your product over others?
+                  What makes this special or why should customers choose your product over others? Click <span className="font-bold text-[#FF6B00]">Ask Dala AI Bot</span> to analyze title & auto-generate!
                 </p>
               </div>
             </div>
@@ -576,6 +590,34 @@ export default function CreateFlow({ onSubmit, onCancel }: CreateFlowProps) {
           </div>
         </div>
       </div>
+
+      {/* AI Bot Dialog Popup */}
+      <AiBotDialog
+        isOpen={showAiBotDialog}
+        onClose={() => setShowAiBotDialog(false)}
+        productTitle={productTitle}
+        category={category}
+        onApplyBenefit={(benefit, imageDetails) => {
+          setMainBenefit(benefit);
+          if (imageDetails) {
+            setToastMessage(`AI Benefit & Image Details applied! 🚀`);
+          } else {
+            setToastMessage(`AI Benefit applied! ✨`);
+          }
+          setTimeout(() => setToastMessage(null), 3500);
+        }}
+        onShowToast={(msg) => {
+          setToastMessage(msg);
+          setTimeout(() => setToastMessage(null), 3500);
+        }}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white px-5 py-3 rounded-2xl border-2 border-[#FF6B00] shadow-[4px_4px_0px_0px_#FF6B00] text-sm font-bold flex items-center gap-2 animate-bounce">
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -36,6 +36,7 @@ interface LandingHeroProps {
   onGetStarted: () => void;
   onSelectPreset: (presetPack: SalesContentPack) => void;
   onOpenTour?: () => void;
+  onOpenAiSettings?: () => void;
 }
 
 export default function LandingHero({

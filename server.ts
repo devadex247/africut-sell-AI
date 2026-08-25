@@ -659,6 +659,68 @@ function generateHeuristicPack(brief: any) {
   };
 }
 
+// Suggest Benefit & Image Details using Dala AI
+app.post("/api/suggest-benefit", async (req, res) => {
+  try {
+    const { title, category } = req.body;
+    const client = getGeminiClient();
+
+    if (client && title) {
+      const prompt = `You are Dala AI, an expert African social commerce copywriter.
+Analyze the product title: "${title}" in category "${category}".
+Generate JSON with:
+1. "mainBenefit": A punchy, compelling 1-2 sentence customer-focused selling benefit.
+2. "imageDetails": Special visual details/overlays recommended for generating sales images or video hooks.
+3. "sellingPoints": An array of 3 short, persuasive bullet points highlighting why buyers love this.
+
+Respond in strict JSON format:
+{
+  "mainBenefit": "...",
+  "imageDetails": "...",
+  "sellingPoints": ["...", "...", "..."]
+}`;
+
+      const response = await client.models.generateContent({
+        model: "gemini-3.7-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          systemInstruction: "You are Dala AI. Respond in strict JSON.",
+        },
+      });
+
+      const parsed = JSON.parse(response.text || "{}");
+      return res.json({ success: true, ...parsed });
+    }
+
+    // Fallback heuristic suggestion
+    return res.json({
+      success: true,
+      mainBenefit: `Premium quality ${title || "product"} designed for durability, style, and complete customer satisfaction.`,
+      imageDetails: `Warm natural lighting, clean background, high-contrast overlay text highlighting "${title}".`,
+      sellingPoints: [
+        `Handcrafted / sourced specifically for the ${category} market`,
+        `Guaranteed high quality and long-lasting value`,
+        `Direct delivery available across major cities`
+      ]
+    });
+  } catch (err) {
+    console.error("Suggest benefit error:", err);
+    const bodyTitle = req.body?.title || "product";
+    const bodyCat = req.body?.category || "General";
+    return res.json({
+      success: true,
+      mainBenefit: `Top quality ${bodyTitle} with fast delivery and trusted reliability.`,
+      imageDetails: `High-contrast professional lighting with crisp product details.`,
+      sellingPoints: [
+        `Top seller in ${bodyCat}`,
+        `Fast delivery and responsive customer service`,
+        `Unmatched quality and value`
+      ]
+    });
+  }
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
