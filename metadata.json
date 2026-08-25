@@ -1,0 +1,6 @@
+{
+  "name": "AfriCut Sell",
+  "description": "Turn raw product videos into sales-ready social content for African micro and small businesses. Powered by Dala Studio & Gemini AI.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
