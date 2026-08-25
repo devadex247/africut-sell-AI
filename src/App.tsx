@@ -8,6 +8,7 @@ import ProcessingView from "./components/ProcessingView";
 import ContentPack from "./components/ContentPack";
 import Projects from "./components/Projects";
 import TourGuide from "./components/TourGuide";
+import AiSettingsModal from "./components/AiSettingsModal";
 
 const STORAGE_KEY = "africut_sell_user_projects_v1";
 const ONBOARDING_KEY = "africut_sell_onboarding_seen_v1";
@@ -31,6 +32,8 @@ export default function App() {
   const [currentBrief, setCurrentBrief] = useState<SalesBrief>(DEFAULT_BRIEF);
   const [currentPack, setCurrentPack] = useState<SalesContentPack | null>(null);
   const [showTourGuide, setShowTourGuide] = useState(false);
+  const [showAiSettings, setShowAiSettings] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -165,6 +168,7 @@ export default function App() {
         onNavigate={handleNavigate}
         projectsCount={projects.length}
         onOpenTour={() => setShowTourGuide(true)}
+        onOpenAiSettings={() => setShowAiSettings(true)}
       />
 
       {/* Main View Router */}
@@ -174,6 +178,7 @@ export default function App() {
             onGetStarted={handleStartCreate}
             onSelectPreset={handleSelectPreset}
             onOpenTour={() => setShowTourGuide(true)}
+            onOpenAiSettings={() => setShowAiSettings(true)}
           />
         )}
 
@@ -225,6 +230,23 @@ export default function App() {
           handleStartCreate();
         }}
       />
+
+      {/* AI Settings & GitHub Deployment Modal */}
+      <AiSettingsModal
+        isOpen={showAiSettings}
+        onClose={() => setShowAiSettings(false)}
+        onShowToast={(msg) => {
+          setToastMessage(msg);
+          setTimeout(() => setToastMessage(null), 3500);
+        }}
+      />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white px-5 py-3 rounded-2xl border-2 border-[#FF6B00] shadow-[4px_4px_0px_0px_#FF6B00] text-sm font-bold flex items-center gap-2 animate-bounce">
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
